@@ -1,0 +1,51 @@
+#version: '3.8'
+
+services:
+  backend:
+    image: backend-laravel
+    build:
+      args:
+        user: dam
+        uid: 1000
+      context: .
+      dockerfile: DOCKERFILE
+    container_name: 0003-DIGITAL55-backend
+    volumes:
+      - .:/var/www/html
+    ports:
+      - "8000:8000"
+    environment:
+      - APP_ENV=local
+      - DB_CONNECTION=mysql
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_DATABASE=laravel
+      - DB_USERNAME=root
+      - DB_PASSWORD=root
+    depends_on:
+      - mysql
+    networks:
+      - 0003-DIGITAL55
+
+  mysql:
+    image: mysql:8.0
+    container_name: 0003-DIGITAL55-mysql-db-backend
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: laravel
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+    volumes:
+      - 0003-DIGITAL55-mysql-data:/var/lib/mysql
+    networks:
+      - 0003-DIGITAL55
+
+networks:
+  0003-DIGITAL55:
+    driver: bridge
+    name: 0003-DIGITAL55
+
+volumes:
+  0003-DIGITAL55-mysql-data:
