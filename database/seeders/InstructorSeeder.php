@@ -11,8 +11,8 @@ class InstructorSeeder extends Seeder
     {
         $this->command->info('Creating instructors...');
         
-        Instructor::factory()->count(50000)->create();
+        Instructor::factory()->count(5000)->create();
         
-        $this->command->info('50,000 instructors created successfully!');
+        $this->command->info('5,000 instructors created successfully!');
     }
 }

@@ -5,17 +5,32 @@ namespace App\Repositories\Eloquent;
 use App\Models\Instructor;
 use App\Repositories\Contracts\InstructorRepositoryInterface;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\LazyCollection;
 
 class EloquentInstructorRepository implements InstructorRepositoryInterface
 {
     public function getAllOptimized(): Collection
     {
-        return Instructor::select('id', 'name', 'email', 'specialization')
-            ->orderBy('name')
-            ->chunk(1000, function ($instructors) {
-                return $instructors;
+        return $this->getAllWithCursorPagination();
+    }
+
+    private function getAllWithCursorPagination(): Collection
+    {
+        $instructors = collect();
+        
+        Instructor::select('id', 'name', 'email', 'specialization')
+            ->orderBy('id')
+            ->lazy(1000)
+            ->each(function ($instructor) use (&$instructors) {
+                $instructors->push([
+                    'id' => $instructor->id,
+                    'name' => $instructor->name,
+                    'email' => $instructor->email,
+                    'specialization' => $instructor->specialization,
+                ]);
             });
+        
+        return $instructors;
     }
 
     public function findById(int $id): ?array

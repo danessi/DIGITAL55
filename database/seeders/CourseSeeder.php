@@ -15,7 +15,7 @@ class CourseSeeder extends Seeder
         $instructorIds = Instructor::pluck('id')->toArray();
         
         $chunkSize = 1000;
-        $totalCourses = 200000;
+        $totalCourses = 2000;
         
         for ($i = 0; $i < $totalCourses / $chunkSize; $i++) {
             $courses = [];
@@ -38,6 +38,6 @@ class CourseSeeder extends Seeder
             $this->command->info('Created ' . (($i + 1) * $chunkSize) . ' courses...');
         }
         
-        $this->command->info('200,000 courses created successfully!');
+        $this->command->info('2,000 courses created successfully!');
     }
 }

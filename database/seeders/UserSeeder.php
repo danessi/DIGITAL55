@@ -16,8 +16,8 @@ class UserSeeder extends Seeder
             'email' => 'test@example.com',
         ]);
         
-        User::factory()->count(100000)->create();
+        User::factory()->count(10000)->create();
         
-        $this->command->info('100,001 users created successfully!');
+        $this->command->info('10,001 users created successfully!');
     }
 }

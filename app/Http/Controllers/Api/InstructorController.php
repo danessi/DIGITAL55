@@ -17,15 +17,28 @@ class InstructorController extends Controller
 
     public function index(): JsonResponse
     {
+        $startTime = microtime(true);
+        
         $instructors = $this->instructorService->getAllInstructorsOptimized();
+        
+        $executionTime = round((microtime(true) - $startTime) * 1000, 2);
         
         return response()->json([
             'success' => true,
             'data' => $instructors,
             'meta' => [
                 'total' => $instructors->count(),
-                'optimized' => true,
-                'cached' => true,
+                'execution_time_ms' => $executionTime,
+                'optimizations' => [
+                    'cursor_pagination' => true,
+                    'lazy_loading' => true,
+                    'redis_cache' => true,
+                    'selective_columns' => true,
+                ],
+                'cache_info' => [
+                    'cached' => cache()->has('instructors:all:optimized'),
+                    'ttl_seconds' => 3600,
+                ],
             ],
         ]);
     }

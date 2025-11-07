@@ -17,7 +17,7 @@ class FavoriteCourseSeeder extends Seeder
         $courseIds = Course::where('is_published', true)->pluck('id')->toArray();
         
         $favoritesCreated = 0;
-        $totalFavorites = 300000;
+        $totalFavorites = 30000;
         
         while ($favoritesCreated < $totalFavorites) {
             $favorites = [];

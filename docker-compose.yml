@@ -42,6 +42,14 @@ services:
     networks:
       - 0003-DIGITAL55
 
+  redis:
+    image: redis:alpine
+    container_name: 0003-DIGITAL55-redis
+    ports:
+      - "6379:6379"
+    networks:
+      - 0003-DIGITAL55
+
 networks:
   0003-DIGITAL55:
     driver: bridge

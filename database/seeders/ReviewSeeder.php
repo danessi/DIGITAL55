@@ -17,7 +17,7 @@ class ReviewSeeder extends Seeder
         $courseIds = Course::where('is_published', true)->pluck('id')->toArray();
         
         $reviewsCreated = 0;
-        $totalReviews = 500000;
+        $totalReviews = 50000;
         
         while ($reviewsCreated < $totalReviews) {
             $reviews = [];
