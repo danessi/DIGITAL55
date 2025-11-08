@@ -11,7 +11,6 @@ use Tests\TestCase;
 
 class CourseApiTest extends TestCase
 {
-    use RefreshDatabase;
 
     protected function setUp(): void
     {
@@ -221,11 +220,10 @@ class CourseApiTest extends TestCase
     {
         $instructor = Instructor::factory()->create();
         $course = Course::factory()->create(['instructor_id' => $instructor->id]);
-        $user = User::factory()->create();
 
         Review::factory()->count(5)->create([
             'course_id' => $course->id,
-            'user_id' => $user->id,
+            'user_id' => User::factory(),
             'rating' => 4,
         ]);
 
