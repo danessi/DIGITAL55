@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use App\Repositories\Contracts\InstructorRepositoryInterface;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 
@@ -11,41 +10,58 @@ class InstructorService
 {
     private InstructorRepositoryInterface $instructorRepository;
     
-    private const CACHE_KEY = 'instructors:all:optimized';
+    private const CACHE_KEY_COUNT = 'instructors:count';
     private const CACHE_TTL = 3600;
+    private const PROGRESS_INTERVAL = 10000;
 
     public function __construct(InstructorRepositoryInterface $instructorRepository)
     {
         $this->instructorRepository = $instructorRepository;
     }
 
-    public function getAllInstructorsOptimized(): Collection
+    public function streamAllInstructors(): void
     {
-        $startTime = microtime(true);
+        set_time_limit(0);
+        ignore_user_abort(true);
+
+        $total = Cache::remember(self::CACHE_KEY_COUNT, self::CACHE_TTL, fn() => 
+            $this->instructorRepository->count()
+        );
+
+        echo '{"success":true,"data":[';
         
-        $instructors = Cache::remember(self::CACHE_KEY, self::CACHE_TTL, function () {
-            Log::info('Cache MISS: Fetching instructors from database');
-            return $this->instructorRepository->getAllOptimized();
-        });
+        $first = true;
+        $processed = 0;
+
+        foreach ($this->instructorRepository->streamOptimized() as $instructor) {
+            echo ($first ? '' : ',') . json_encode($instructor, JSON_UNESCAPED_UNICODE);
+            $first = false;
+            $processed++;
+
+            if ($processed % self::PROGRESS_INTERVAL === 0) {
+                Log::info('Streaming progress', [
+                    'processed' => $processed,
+                    'total' => $total,
+                    'percentage' => round(($processed / max(1, $total)) * 100, 2)
+                ]);
+                
+                if (ob_get_level() > 0) {
+                    @ob_flush();
+                }
+                flush();
+            }
+        }
+
+        echo '],"meta":{"total":' . $total . ',"processed":' . $processed . '}}';
         
-        $executionTime = round((microtime(true) - $startTime) * 1000, 2);
-        
-        Log::info('Instructors retrieved', [
-            'count' => $instructors->count(),
-            'execution_time_ms' => $executionTime,
-            'cached' => Cache::has(self::CACHE_KEY),
-        ]);
-        
-        return $instructors;
+        if (ob_get_level() > 0) {
+            @ob_flush();
+        }
+        flush();
     }
 
     public function getInstructor(int $id): ?array
     {
         return $this->instructorRepository->findById($id);
-    }
-    
-    public function clearCache(): bool
-    {
-        return Cache::forget(self::CACHE_KEY);
     }
 }

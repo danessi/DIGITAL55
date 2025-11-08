@@ -2,51 +2,51 @@
 
 namespace App\Repositories\Eloquent;
 
-use App\Models\Instructor;
 use App\Repositories\Contracts\InstructorRepositoryInterface;
+use Generator;
 use Illuminate\Support\Collection;
-use Illuminate\Support\LazyCollection;
+use Illuminate\Support\Facades\DB;
 
 class EloquentInstructorRepository implements InstructorRepositoryInterface
 {
     public function getAllOptimized(): Collection
     {
-        return $this->getAllWithCursorPagination();
+        return collect();
     }
 
-    private function getAllWithCursorPagination(): Collection
+    public function streamOptimized(): Generator
     {
-        $instructors = collect();
-        
-        Instructor::select('id', 'name', 'email', 'specialization')
-            ->orderBy('id')
-            ->lazy(1000)
-            ->each(function ($instructor) use (&$instructors) {
-                $instructors->push([
-                    'id' => $instructor->id,
-                    'name' => $instructor->name,
-                    'email' => $instructor->email,
-                    'specialization' => $instructor->specialization,
-                ]);
-            });
-        
-        return $instructors;
+        $query = DB::table('instructors')
+            ->select('id', 'name', 'email', 'specialization')
+            ->orderBy('id');
+
+        foreach ($query->cursor() as $row) {
+            yield [
+                'id' => $row->id,
+                'name' => $row->name,
+                'email' => $row->email,
+                'specialization' => $row->specialization,
+            ];
+        }
+    }
+
+    public function count(): int
+    {
+        return DB::table('instructors')->count();
     }
 
     public function findById(int $id): ?array
     {
-        $instructor = Instructor::select('id', 'name', 'email', 'bio', 'specialization')
-            ->find($id);
-        
-        if (!$instructor) {
-            return null;
-        }
-        
-        return $instructor->toArray();
+        $row = DB::table('instructors')
+            ->select('id', 'name', 'email', 'bio', 'specialization')
+            ->where('id', $id)
+            ->first();
+
+        return $row ? (array) $row : null;
     }
 
     public function exists(int $id): bool
     {
-        return Instructor::where('id', $id)->exists();
+        return DB::table('instructors')->where('id', $id)->exists();
     }
 }
