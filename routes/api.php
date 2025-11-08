@@ -24,6 +24,7 @@ Route::prefix('v1')->group(function () {
 
     Route::prefix('instructors')->group(function () {
         Route::get('/', [InstructorController::class, 'index']);
+        Route::get('/paginated', [InstructorController::class, 'paginated']);
         Route::get('/{id}', [InstructorController::class, 'show']);
     });
     

@@ -3,8 +3,11 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Instructor;
 use App\Services\InstructorService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class InstructorController extends Controller
 {
@@ -15,30 +18,37 @@ class InstructorController extends Controller
         $this->instructorService = $instructorService;
     }
 
-    public function index(): JsonResponse
+    public function index(): StreamedResponse
     {
-        $startTime = microtime(true);
+        return response()->stream(function () {
+            $this->instructorService->streamAllInstructors();
+        }, 200, [
+            'Content-Type' => 'application/json',
+            'Cache-Control' => 'no-cache',
+            'X-Accel-Buffering' => 'no',
+        ]);
+    }
+
+    public function paginated(Request $request): JsonResponse
+    {
+        $perPage = min((int) $request->input('per_page', 100), 1000);
         
-        $instructors = $this->instructorService->getAllInstructorsOptimized();
-        
-        $executionTime = round((microtime(true) - $startTime) * 1000, 2);
+        $paginator = Instructor::select('id', 'name', 'email', 'specialization')
+            ->orderBy('id')
+            ->cursorPaginate($perPage);
         
         return response()->json([
             'success' => true,
-            'data' => $instructors,
-            'meta' => [
-                'total' => $instructors->count(),
-                'execution_time_ms' => $executionTime,
-                'optimizations' => [
-                    'cursor_pagination' => true,
-                    'lazy_loading' => true,
-                    'redis_cache' => true,
-                    'selective_columns' => true,
-                ],
-                'cache_info' => [
-                    'cached' => cache()->has('instructors:all:optimized'),
-                    'ttl_seconds' => 3600,
-                ],
+            'data' => $paginator->items(),
+            'pagination' => [
+                'per_page' => $paginator->perPage(),
+                'next_cursor' => $paginator->nextCursor()?->encode(),
+                'prev_cursor' => $paginator->previousCursor()?->encode(),
+                'has_more_pages' => $paginator->hasMorePages(),
+            ],
+            'links' => [
+                'next' => $paginator->nextPageUrl(),
+                'prev' => $paginator->previousPageUrl(),
             ],
         ]);
     }
