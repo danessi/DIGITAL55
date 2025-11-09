@@ -6,12 +6,14 @@ use App\Models\Course;
 use App\Models\Instructor;
 use App\Models\Review;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+//use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Tests\TestCase;
 
 class CourseApiTest extends TestCase
 {
-    use RefreshDatabase;
+    //use RefreshDatabase;
+    use DatabaseMigrations;
 
     protected function setUp(): void
     {

@@ -3,12 +3,14 @@
 namespace Tests\Feature\Api;
 
 use App\Models\Instructor;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+//use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Tests\TestCase;
 
 class InstructorApiTest extends TestCase
 {
-    use RefreshDatabase;
+    //use RefreshDatabase;
+    use DatabaseMigrations;
 
     protected function setUp(): void
     {
