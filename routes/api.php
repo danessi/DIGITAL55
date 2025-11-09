@@ -3,8 +3,33 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\TiendaController;
-use App\Http\Controllers\VentaController;
+/* use App\Http\Controllers\TiendaController;
+use App\Http\Controllers\VentaController; */
+
+use App\Http\Controllers\Api\CourseController;
+use App\Http\Controllers\Api\InstructorController;
+
+
+Route::prefix('v1')->group(function () {
+    
+    Route::prefix('courses')->group(function () {
+        Route::get('/', [CourseController::class, 'index']);
+        Route::post('/', [CourseController::class, 'store']);
+        Route::get('/published', [CourseController::class, 'published']);
+        Route::get('/{id}', [CourseController::class, 'show']);
+        Route::put('/{id}', [CourseController::class, 'update']);
+        Route::delete('/{id}', [CourseController::class, 'destroy']);
+        Route::get('/{id}/rating', [CourseController::class, 'rating']);
+    });
+
+    Route::prefix('instructors')->group(function () {
+        Route::get('/', [InstructorController::class, 'index']);
+        Route::get('/paginated', [InstructorController::class, 'paginated']);
+        Route::get('/{id}', [InstructorController::class, 'show']);
+    });
+    
+});
+
 
 /* 
 Route::get('/tiendas', [TiendaController::class, 'index']);
@@ -14,15 +39,6 @@ Route::put('/tiendas/{id}', [TiendaController::class, 'update']);
 Route::delete('/tiendas/{id}', [TiendaController::class, 'destroy']);
 Route::post('/venta', [VentaController::class, 'vender']); 
 */
-
-
-
-
-
-
-
-
-
 
 //just for login using sanctum
 
@@ -38,6 +54,6 @@ Route::group(['middleware' => ['auth:sanctum']], function(){
     Route::get("/rutaACrear2", [AuthController::class, "rutaACrear2"]);
 });
 
-Route::middleware('auth:sanctum')->get('/orders', [OrderController::class, 'index']);
+/* Route::middleware('auth:sanctum')->get('/orders', [OrderController::class, 'index']);
 Route::middleware('auth:sanctum')->post('/orders', [OrderController::class, 'store']);
-Route::middleware('auth:sanctum')->get('/orders/{order}', [OrderController::class, 'show']);
+Route::middleware('auth:sanctum')->get('/orders/{order}', [OrderController::class, 'show']); */

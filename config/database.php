@@ -16,7 +16,10 @@ return [
     |
     */
 
-    'default' => env('DB_CONNECTION', 'sqlite'),
+    //'default' => env('DB_CONNECTION', 'sqlite'),
+    'default' => env('APP_ENV') === 'testing'
+        ? 'testing' // <-- OBLIGA la conexión 'testing' si APP_ENV es 'testing'
+        : env('DB_CONNECTION', 'mysql'),
 
     /*
     |--------------------------------------------------------------------------
@@ -110,6 +113,12 @@ return [
             'prefix_indexes' => true,
             // 'encrypt' => env('DB_ENCRYPT', 'yes'),
             // 'trust_server_certificate' => env('DB_TRUST_SERVER_CERTIFICATE', 'false'),
+        ],
+
+        'testing' => [
+            'driver'   => 'sqlite',
+            'database' => ':memory:', // ¡La base de datos temporal en RAM!
+            'prefix'   => '',
         ],
 
     ],
