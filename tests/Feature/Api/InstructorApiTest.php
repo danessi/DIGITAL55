@@ -8,6 +8,7 @@ use Tests\TestCase;
 
 class InstructorApiTest extends TestCase
 {
+    use RefreshDatabase;
 
     protected function setUp(): void
     {

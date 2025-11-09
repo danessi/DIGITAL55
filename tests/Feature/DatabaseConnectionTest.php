@@ -8,6 +8,7 @@ use Tests\TestCase;
 
 class DatabaseConnectionTest extends TestCase
 {
+    use RefreshDatabase;
 
     public function test_uses_sqlite_memory_database(): void
     {
