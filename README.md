@@ -173,12 +173,19 @@ Los tests están configurados para usar **SQLite en memoria**, por lo que **no a
 
 ### Ejecutar todos los tests
 
-#### Opción 1: Desde fuera del contenedor
+#### Opción 1: Desde dentro del contenedor
+```bash
+docker exec -it -e APP_ENV=testing 0003-DIGITAL55-backend bash
+php artisan config:clear
+php artisan test --env=testing
+```
+
+#### Opción 2: Desde fuera del contenedor
 ```bash
 docker exec -e APP_ENV=testing 0003-DIGITAL55-backend php artisan test
 ```
 
-#### Opción 2: Desde dentro del contenedor
+#### Opción 3: Desde dentro del contenedor
 ```bash
 docker exec -it -e APP_ENV=testing 0003-DIGITAL55-backend bash
 php artisan test
